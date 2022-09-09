@@ -21,5 +21,14 @@ function App() {
     </div>
   );
 }
-
+fetch("/news?query=ukraine", {
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+    .then(res => res.json())
+    .then(
+        (result) => {
+          console.log(result);
+        })
 export default App;
