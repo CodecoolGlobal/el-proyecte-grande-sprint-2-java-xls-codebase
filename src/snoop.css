@@ -1,0 +1,62 @@
+* {
+  color: #8c8c8c;
+  font-size: 100%;
+  font-family: Calibri, 'Trebuchet MS', sans-serif;
+}
+
+ body {
+  margin: 2em;
+}
+
+header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom:2em;
+}
+
+.logo {
+  width:10%;
+}
+
+form, button {
+  text-align: center;
+}
+
+form input {
+  padding: 0.5em;
+  margin: 2em 0.5em;
+  border: 1px solid #bfbfbf;
+  background-color:#fff;
+  border-radius: 3px;
+}
+
+form input[type=text] {
+  width: 50%;
+}
+.search-results {
+  text-align:left;
+}
+
+.result-item {
+  margin: 1em 0;
+}
+.result-item .title {
+  font-weight: semi-bold;
+  color: #348888;
+  margin-bottom:0.3em;
+}
+.result-item .title a {
+  font-weight: semi-bold;
+  color: #348888;
+}
+.show-next {
+  margin-top:2em;
+  text-align:center;
+}
+.show-next button {
+  margin: 0;
+  padding: 0.5em;
+  border: 1px solid #bfbfbf;
+  background-color:#fff;
+  border-radius: 3px;
+}
