@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import SearchResults from './SearchResults';
 
 const reducer = (state, action) => {
@@ -9,10 +9,12 @@ const reducer = (state, action) => {
       return {...state, page: 1}
     case 'searchPhrase':
       return {...state, searchPhrase: action.payload}
-      case 'articles':
-        return {...state, articles: action.payload}
-      case 'totalResults':
-        return {...state, totalResults: action.payload}
+    case 'setRequestedSearchPhrase':
+      return {...state, requestedSearchPhrase: state.searchPhrase}
+    case 'articles':
+      return {...state, articles: action.payload}
+    case 'totalResults':
+      return {...state, totalResults: action.payload}
     default: 
     throw new Error();
   }
@@ -24,11 +26,13 @@ const SearchField = () => {
 
   const handleSearchPhraseChange = (event) => {
     dispatch({type: 'searchPhrase', payload: event.target.value})
+    console.log(state.articles)
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     dispatch({type: 'resetPageNumber'});
+    dispatch({type: 'setRequestedSearchPhrase'})
     contactServer();
   }
   
@@ -63,15 +67,12 @@ const SearchField = () => {
         <input type="text" value={state.searchPhrase} required onChange={handleSearchPhraseChange}></input>
         <input type="submit" value="Snoop"></input>
       </form>
-      <SearchResults articles = {state.articles} />
-      {state.articles.length > 0 &&
-          <div className="show-next">
-            <p>Showing {state.articles.length } of {state.totalResults} results.</p>
-            {state.articles.length < state.totalResults && 
-              <button onClick={showNextResults}>Show More Results</button>
-            }
-          </div>
-      }
+
+      <SearchResults 
+      requestedSearchPhrase = {state.requestedSearchPhrase} 
+      totalResults = {state.totalResults} 
+      articles = {state.articles} 
+      showNextResults = {showNextResults}/>
     </div>
   )
 }

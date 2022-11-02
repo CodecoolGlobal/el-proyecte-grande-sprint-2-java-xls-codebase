@@ -60,3 +60,9 @@ form input[type=text] {
   background-color:#fff;
   border-radius: 3px;
 }
+
+img {
+  object-fit: contain;
+  width:100%;
+  height: auto;
+}
