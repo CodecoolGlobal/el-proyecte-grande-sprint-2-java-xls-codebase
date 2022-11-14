@@ -1,3 +1,4 @@
+import { notifyManager } from '@tanstack/react-query';
 import React, { useReducer } from 'react';
 import SearchResults from './SearchResults';
 
@@ -15,22 +16,23 @@ const reducer = (state, action) => {
       return {...state, articles: action.payload}
     case 'totalResults':
       return {...state, totalResults: action.payload}
-    default: 
+    case 'articleDetails':
+        return {...state, articleDetails: action.payload}
+    default:   
     throw new Error();
   }
 }
 
 const SearchField = () => {
   
-  const [state, dispatch] = useReducer(reducer, { pageSize: 3, page: 1, searchPhrase: '',  articles: [], totalResults: 0})
+  const [state, dispatch] = useReducer(reducer, { pageSize: 3, page: 1, searchPhrase: '',  articles: [], totalResults: 0, articleDetails: null})
 
   const handleSearchPhraseChange = (event) => {
     dispatch({type: 'searchPhrase', payload: event.target.value})
-    console.log(state.articles)
+    console.log(state.searchPhrase)
   }
 
   const handleSubmit = (event) => {
-    event.preventDefault();
     dispatch({type: 'resetPageNumber'});
     dispatch({type: 'setRequestedSearchPhrase'})
     contactServer();
@@ -63,16 +65,21 @@ const SearchField = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={event => {
+        event.preventDefault();
+        handleSubmit(event);
+        }}>
         <input type="text" value={state.searchPhrase} required onChange={handleSearchPhraseChange}></input>
         <input type="submit" value="Snoop"></input>
       </form>
-
       <SearchResults 
       requestedSearchPhrase = {state.requestedSearchPhrase} 
       totalResults = {state.totalResults} 
       articles = {state.articles} 
-      showNextResults = {showNextResults}/>
+      articleDetails = {state.articleDetails}
+      setArticleDetails={article => dispatch({type:'articleDetails', payload:article})}
+      showNextResults = {showNextResults}
+      />
     </div>
   )
 }
