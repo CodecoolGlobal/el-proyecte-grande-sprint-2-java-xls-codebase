@@ -2,7 +2,6 @@
 import Search from "./components/search/Search.jsx";
 import Header from "./components/Header.jsx";
 import "./snoop.css";
-import SearchArticleDetails from "./components/SearchArticleDetails.jsx";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
