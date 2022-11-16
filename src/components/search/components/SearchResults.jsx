@@ -6,11 +6,11 @@ import ShowMoreResultsButton from "./ShowMoreResultsButton";
 import { CircularProgress } from "@mui/material";
 import { Box } from "@mui/system";
 
-const SearchResults = ({searchPhrase, isLoading, articles, numberOfTotalResults, setArticleDetails, showMoreResults}) => {
+const SearchResults = ({searchPhrase, isLoading, articles, numberOfTotalResults, selectedArticle, selectArticle, showMoreResults}) => {
   
   const numberOfDisplayedResults = articles.length;
   return (
-  <div>
+  <div className="search-results">
     {
       (numberOfDisplayedResults > 0) && 
       <SearchResultHeadline searchPhrase = {searchPhrase} />
@@ -20,7 +20,8 @@ const SearchResults = ({searchPhrase, isLoading, articles, numberOfTotalResults,
       isLoading = {isLoading}
       articles = {articles} 
       searchPhrase = {searchPhrase} 
-    setArticleDetails = {setArticleDetails} />
+      selectedArticle = {selectedArticle}
+      selectArticle = {selectArticle}/>
 
     { isLoading && 
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>

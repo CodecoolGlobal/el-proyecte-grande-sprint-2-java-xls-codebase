@@ -6,7 +6,10 @@ import axios from "axios";
 import SearchField from './components/SearchField';
 import SearchResults from './components/SearchResults';
 import SearchArticleDetails from './components/SearchArticleDetails';
+import {AppBar} from '@mui/material';
+import { Toolbar } from '@mui/material';
 
+import logo from '../../logo.svg'
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -22,8 +25,10 @@ const reducer = (state, action) => {
       return {...state, articles: action.payload}
     case 'numberOfTotalResults':
       return {...state, numberOfTotalResults: action.payload}
-    case 'setArticleDetails':
-        return {...state, articleDetails: action.payload}
+    case 'selectArticle':
+      return {...state, selectedArticle: action.payload}
+    case 'deselectArticle':
+      return {...state, selectedArticle: NaN}
     case 'isLoading':
         return {...state, isLoading: true}  
     case 'isNotLoading':
@@ -35,7 +40,7 @@ const reducer = (state, action) => {
 
 const fetchArticles = async(searchPhrase, searchPage) => {
   const baseURL =""
-  const apiPath="/everything";
+  const apiPath="/everything222";
   const query = "?q=" + searchPhrase;
   const pageSize = "&pageSize=" + "3";
   const page = "&page=" + searchPage;
@@ -48,9 +53,9 @@ const fetchArticles = async(searchPhrase, searchPage) => {
 
 const Search = () => {
   
-  const [state, dispatch] = useReducer(reducer, { pageSize: 3, page: 1, searchPhrase: '', articles: [], numberOfTotalResults: 0, articleDetails: null, isLoading: false})
+  const [state, dispatch] = useReducer(reducer, { pageSize: 3, page: 1, searchPhrase: '', articles: [], numberOfTotalResults: 0, selectedArticle:NaN, isLoading: false})
 
-  const { isLoading, isError, error } = useQuery({
+  const { isLoading, isError, error, isSuccess } = useQuery({
     queryKey: ['search-articles', state.searchPhrase, state.page], 
     queryFn: () => fetchArticles(state.searchPhrase, state.page), 
     refetchOnMount: false,
@@ -62,7 +67,7 @@ const Search = () => {
       if (state.page > 1) {
         dispatch({type: 'articles', payload: state.articles.concat(data.articles)});
       } else {
-        dispatch({type: 'articles', payload: data.articles});
+        dispatch({type: 'articles', payload: data.articles})
       }
     }
   });
@@ -71,6 +76,7 @@ const Search = () => {
     if (!state.isLoading) {
       dispatch({type:'isLoading'});
     }
+    console.log('loading')
   }
 
   if (isError) {
@@ -78,32 +84,46 @@ const Search = () => {
     if (state.isLoading) {
       dispatch({type:'isNotLoading'});
     }
+    console.log('error')
   }
 
   return (
-    <div class="main-search">
-      <div className="search" style={{width:700, display:'inline-block'}}>
-        <SearchField 
-          setSearchPhrase = {searchPhrase => {
-            dispatch({type:'searchPhrase', payload:searchPhrase})
-            dispatch({type:'resetPageNumber'})
-            }
-          }
-        startSearch = {() => dispatch({type: 'startSearch'})}/>
+    <div>
+      <AppBar elevation={0} color="inherit" position="sticky">
+        <Toolbar>
+            <div><object className="logo" data={logo}/></div>
+            <SearchField             
+              setSearchPhrase = {searchPhrase => {
+              dispatch({type:'searchPhrase', payload:''})
+              dispatch({type:'searchPhrase', payload:searchPhrase})
+              dispatch({type:'resetPageNumber'})
+              dispatch({type:'deselectArticle'})
+              }
+            }></SearchField>
+        </Toolbar>
+      </AppBar>
+      <div className='main-search'>
         <SearchResults 
           searchPhrase = {state.searchPhrase}
           isLoading = {state.isLoading}
           articles = {state.articles}
           numberOfTotalResults = {state.numberOfTotalResults}
-          setArticleDetails = {article => dispatch({type:'setArticleDetails', payload:article})}
+          selectedArticle = {state.selectedArticle}
+          selectArticle = {articleIndex => dispatch({type:'selectArticle', payload: articleIndex})}
         showMoreResults = {() => {dispatch({type: 'incrementPageNumber'})}} />
-      </div>
-
-      {state.articleDetails && 
-      <div className="article-details" style={{width:500, display:'inline-block'}}>
-          <SearchArticleDetails article = {state.articleDetails} />
-      </div>}
+        
+        {!isNaN(state.selectedArticle) && 
+        <div className="article-details">
+            <SearchArticleDetails 
+              selectArticle = {(articleIndex => dispatch({type:'selectArticle', payload: articleIndex}))}
+              articleIndex = {state.selectedArticle}
+              numberOfShownResults = {state.articles.length}
+            article = {state.articles[state.selectedArticle]} />
+        </div>}
+      </div>    
     </div>
+
+
   )
 }
 export default Search

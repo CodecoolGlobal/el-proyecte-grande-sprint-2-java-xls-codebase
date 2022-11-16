@@ -15,7 +15,7 @@ const SearchField = ({setSearchPhrase}) => {
   }
   
   return (
-    <div>
+    <div className="search-form">
       <form onSubmit={handleSubmit}>
         <input type="text" value={query} required onChange={handleTextfieldChange}></input>
         <input type="submit" value="Snoop"></input>
