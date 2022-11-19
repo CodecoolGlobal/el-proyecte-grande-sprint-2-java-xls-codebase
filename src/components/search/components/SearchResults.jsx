@@ -11,37 +11,39 @@ const SearchResults = ({searchPhrase, isLoading, articles, numberOfTotalResults,
   const numberOfDisplayedResults = articles.length;
   return (
   <div className="search-results">
-    {
-      (numberOfDisplayedResults > 0) && 
-      <SearchResultHeadline searchPhrase = {searchPhrase} />
-    }
+    <Box sx={{ width: 650}}>
+      {
+        (numberOfDisplayedResults > 0) && 
+        <SearchResultHeadline searchPhrase = {searchPhrase} />
+      }
 
-    <SearchResultSet 
-      isLoading = {isLoading}
-      articles = {articles} 
-      searchPhrase = {searchPhrase} 
-      selectedArticle = {selectedArticle}
-      selectArticle = {selectArticle}/>
+      <SearchResultSet 
+        isLoading = {isLoading}
+        articles = {articles} 
+        searchPhrase = {searchPhrase} 
+        selectedArticle = {selectedArticle}
+        selectArticle = {selectArticle}/>
 
-    { isLoading && 
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress size={30} />
-      </Box>
-    }
-    {
-      (numberOfDisplayedResults > 0) && 
-        <SearchResultsCounter 
-          numberOfDisplayedResults = {numberOfDisplayedResults} 
-        numberOfTotalResults = {numberOfTotalResults} />
-    }
-    {
+      { isLoading && 
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress size={30} />
+        </Box>
+      }
+      {
+        (numberOfDisplayedResults > 0) && !isLoading && 
+          <SearchResultsCounter 
+            numberOfDisplayedResults = {numberOfDisplayedResults} 
+          numberOfTotalResults = {numberOfTotalResults} />
+      }
+      {
 
-      (numberOfDisplayedResults > 0 && numberOfDisplayedResults < numberOfTotalResults) && 
-        <ShowMoreResultsButton 
-          numberOfDisplayedResults = {numberOfDisplayedResults}
-          numberOfTotalResults = {numberOfTotalResults}
-        showMoreResults = {showMoreResults} />
-    }
+        (numberOfDisplayedResults > 0 && numberOfDisplayedResults < numberOfTotalResults) && 
+          <ShowMoreResultsButton 
+            numberOfDisplayedResults = {numberOfDisplayedResults}
+            numberOfTotalResults = {numberOfTotalResults}
+          showMoreResults = {showMoreResults} />
+      }
+    </Box>
   </div>
   );
 

@@ -23,6 +23,8 @@ const reducer = (state, action) => {
       return {...state, requestedSearchPhrase: state.searchPhrase.trim()}
     case 'articles':
       return {...state, articles: action.payload}
+    case 'emptyArticles':
+      return {...state, articles: []}
     case 'numberOfTotalResults':
       return {...state, numberOfTotalResults: action.payload}
     case 'selectArticle':
@@ -40,15 +42,14 @@ const reducer = (state, action) => {
 
 const fetchArticles = async(searchPhrase, searchPage) => {
   const baseURL =""
-  const apiPath="/everything222";
+  const apiPath="/everything";
   const query = "?q=" + searchPhrase;
   const pageSize = "&pageSize=" + "3";
   const page = "&page=" + searchPage;
   const requestUrl = baseURL + apiPath + query + pageSize + page;
 
   const result = await axios.get(requestUrl);
-  const data = result.data;
-  return data;
+  return result.data;
 }
 
 const Search = () => {
@@ -89,15 +90,16 @@ const Search = () => {
 
   return (
     <div>
-      <AppBar elevation={0} color="inherit" position="sticky">
-        <Toolbar>
-            <div><object className="logo" data={logo}/></div>
+      <AppBar elevation={0} color="inherit" position="sticky" >
+        <Toolbar disableGutters={true} >
+            <div className="logo"><object className="logo" data={logo}/></div>
             <SearchField             
               setSearchPhrase = {searchPhrase => {
               dispatch({type:'searchPhrase', payload:''})
               dispatch({type:'searchPhrase', payload:searchPhrase})
               dispatch({type:'resetPageNumber'})
               dispatch({type:'deselectArticle'})
+              dispatch({type: 'emptyArticles'})
               }
             }></SearchField>
         </Toolbar>
@@ -113,16 +115,15 @@ const Search = () => {
         showMoreResults = {() => {dispatch({type: 'incrementPageNumber'})}} />
         
         {!isNaN(state.selectedArticle) && 
-        <div className="article-details">
-            <SearchArticleDetails 
-              selectArticle = {(articleIndex => dispatch({type:'selectArticle', payload: articleIndex}))}
-              articleIndex = {state.selectedArticle}
-              numberOfShownResults = {state.articles.length}
-            article = {state.articles[state.selectedArticle]} />
-        </div>}
+          <SearchArticleDetails 
+            selectArticle = {(articleIndex => dispatch({type:'selectArticle', payload: articleIndex}))}
+            deselectArticle = {() => {dispatch({type:'deselectArticle'})}}
+            articleIndex = {state.selectedArticle}
+            numberOfShownResults = {state.articles.length}
+          article = {state.articles[state.selectedArticle]} />
+        }
       </div>    
     </div>
-
 
   )
 }
