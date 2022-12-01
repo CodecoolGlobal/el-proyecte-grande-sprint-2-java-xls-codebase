@@ -8,6 +8,8 @@ import SearchResults from './components/SearchResults';
 import SearchArticleDetails from './components/SearchArticleDetails';
 import {AppBar} from '@mui/material';
 import { Toolbar } from '@mui/material';
+import {Box} from '@mui/material';
+import LoginButton from './../login/LoginButton';
 
 import logo from '../../logo.svg'
 
@@ -47,13 +49,14 @@ const fetchArticles = async(searchPhrase, searchPage) => {
   const pageSize = "&pageSize=" + "3";
   const page = "&page=" + searchPage;
   const requestUrl = baseURL + apiPath + query + pageSize + page;
-
+  axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
   const result = await axios.get(requestUrl);
   return result.data;
 }
 
 const Search = () => {
   
+  const user = sessionStorage.getItem('user');
   const [state, dispatch] = useReducer(reducer, { pageSize: 3, page: 1, searchPhrase: '', articles: [], numberOfTotalResults: 0, selectedArticle:NaN, isLoading: false})
 
   const { isLoading, isError, error, isSuccess } = useQuery({
@@ -102,7 +105,8 @@ const Search = () => {
               dispatch({type: 'emptyArticles'})
               }
             }></SearchField>
-        </Toolbar>
+            {user ? <Box sx={{ whiteSpace: 'nowrap'}}>Hallo {sessionStorage.getItem(user)}</Box> : <LoginButton />}
+      </Toolbar>
       </AppBar>
       <div className='main-search'>
         <SearchResults 
