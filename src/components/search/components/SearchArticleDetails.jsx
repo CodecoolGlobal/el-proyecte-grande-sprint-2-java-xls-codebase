@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Toolbar } from "@mui/material"
+import { Alert, Toolbar, Tooltip } from "@mui/material"
 import { Snackbar } from "@mui/material";
 import { Box } from "@mui/system";
 import { Save } from "@mui/icons-material"
@@ -44,10 +44,14 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
 
   const { mutate, isSuccess } = useMutation({
     mutationFn: saveArticle => {
-      setSaveTitle(article.title)
-      const baseURL =""
-      const apiPath="/news/api";
-      return axios.post(baseURL + apiPath, article)
+      setSaveTitle(article.title);
+      const token = sessionStorage.getItem('id_token');
+      let headers = {
+        'Authorization': `Bearer ${token}`
+      }
+      const baseURL ="http://127.0.0.1:8090"
+      const apiPath="/api/news/articles";
+      return axios.post(baseURL + apiPath, article, {headers: headers})
     },
     onSuccess: () => { setOpen(true)}
   })
@@ -76,7 +80,14 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
               <OpenInNewIcon onClick={!isNaN(articleIndex) ? openInNewTab : undefined} />
             </Box>
             <Box sx={{ "&:hover": { cursor: "pointer" } }}>
-              <Save onClick={save}/>
+              {sessionStorage.getItem('user') 
+              ? 
+                <Save onClick={save}/>
+              :
+              <Tooltip title="Save-function requires login">
+                <Save />
+              </Tooltip>
+              }
             </Box>
             <Box sx={{ "&:hover": { cursor: "pointer" } }} >
               <CloseIcon onClick={!isNaN(articleIndex) ? close : undefined } />

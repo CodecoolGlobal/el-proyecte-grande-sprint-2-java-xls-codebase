@@ -43,10 +43,10 @@ const reducer = (state, action) => {
 }
 
 const fetchArticles = async(searchPhrase, searchPage) => {
-  const baseURL =""
+  const baseURL ="http://127.0.0.1:8080"
   const apiPath="/everything";
   const query = "?q=" + searchPhrase;
-  const pageSize = "&pageSize=" + "3";
+  const pageSize = "&pageSize=" + "10";
   const page = "&page=" + searchPage;
   const requestUrl = baseURL + apiPath + query + pageSize + page;
   axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
