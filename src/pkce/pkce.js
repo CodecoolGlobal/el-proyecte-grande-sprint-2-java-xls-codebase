@@ -10,8 +10,7 @@ const generateCodeVerifier = () => {
     return base64Url(crypto.enc.Base64.stringify(crypto.lib.WordArray.random(32)));
 }
 
-const generateCodeChallenge = () => {
-    const codeVerifier = sessionStorage.getItem('codeVerifier');
+const generateCodeChallenge = (codeVerifier) => {
     return base64Url(sha256(codeVerifier));
 }
 

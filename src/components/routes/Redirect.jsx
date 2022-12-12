@@ -1,52 +1,92 @@
-import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Buffer } from "buffer";
+import { generateCodeChallenge, generateCodeVerifier } from '../../pkce/pkce';
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { OAUTH2_AUTHORIZATION_ENDPOINT } from "../../config/constants.js";
+import { OAUTH2_CLIENT_ID } from "../../config/constants";
+import { OAUTH2_CODE_CHALLENGE_METHOD } from "../../config/constants";
+import { OAUTH2_RESPONSE_TYPE } from "../../config/constants";
+import { OAUTH2_TOKEN_ENDPOINT } from "../../config/constants";
+import { OAUTH2_REDIRECT_URI } from "../../config/constants";
+import { OAUTH2_GRANT_TYPE } from "../../config/constants";
+import { OAUTH2_SCOPE } from "../../config/constants";
+import { OAUTH2_CLIENT_SECRET } from "../../config/constants";
 
 const Redirect = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    if (sessionStorage.getItem('codeVerifier') === null) {
+        const codeVerifier = generateCodeVerifier();
+        const codeChallenge = generateCodeChallenge(codeVerifier);
+    
+        sessionStorage.setItem('codeVerifier', codeVerifier);
+        sessionStorage.setItem('codeChallenge', codeChallenge);
+    }
 
-    useEffect(() => {
-        if(searchParams?.get('code')){
-            const code = searchParams?.get('code');
-            const client = 'api-client'; // TODO: hide
-            const secret = 'secret'; // TODO: hide
-            const headers = new Headers();
-            headers.append('Content-type', 'application/json');
-            headers.append('Authorization', `Basic ${Buffer.from(`${client}:${secret}`).toString('base64')}`);
+    const codeVerifier = sessionStorage.getItem('codeVerifier');
+    const codeChallenge = sessionStorage.getItem('codeChallenge');
 
-            const verifier = sessionStorage.getItem('codeVerifier');
-            
-            const initialUrl = 'http://auth-server:9000/oauth2/token?client_id=api-client&redirect_uri=http://127.0.0.1:3000/authorized&grant_type=authorization_code';
-            const url = `${initialUrl}&code=${code}&code_verifier=${verifier}`;
+    const clearCodeChallenge = () => sessionStorage.removeItem('codeChallenge');
+    const clearCodeVerifier = () => sessionStorage.removeItem('codeVerifier');
 
-            fetch(url, {
-                method: 'POST',
-                mode: 'cors',
-                headers
-            }).then(async (response) => {
-                const token = await response.json();
-                if(token?.id_token) {
-                    console.log("token: " + token)
-                    console.log("id_token: " + token.id_token)
-                    sessionStorage.setItem('user', JSON.parse(Buffer.from(token.id_token.split('.')[1], 'base64').toString()).sub);
-                    sessionStorage.setItem('id_token', token.id_token);
-                    navigate('/');
-                }
-            }).catch((err) => {
-                console.log(err);
-            })
+    const code = searchParams.get('code') ? searchParams.get('code') : undefined;
+
+    const getAuthorizationCode = (codeChallenge) => {
+        const link = OAUTH2_AUTHORIZATION_ENDPOINT 
+        + '?'
+        + 'response_type=' + OAUTH2_RESPONSE_TYPE
+        + '&client_id=' + OAUTH2_CLIENT_ID 
+        + '&scope=' + OAUTH2_SCOPE
+        + '&redirect_uri=' + OAUTH2_REDIRECT_URI 
+        + '&code_challenge=' + codeChallenge 
+        + '&code_challenge_method=' + OAUTH2_CODE_CHALLENGE_METHOD;
+
+        window.location.href = link;
+    }
+    
+    const requestIdToken = async (code, codeVerifier) => {
+        const link = OAUTH2_TOKEN_ENDPOINT
+            + '?'
+            + 'client_id=' + OAUTH2_CLIENT_ID
+            + '&grant_type=' + OAUTH2_GRANT_TYPE 
+            + '&code_verifier=' + codeVerifier
+            + '&code=' + code
+            + '&redirect_uri=' + OAUTH2_REDIRECT_URI;
+
+        const headers = {
+            'Content-Type': 'x-www-form-urlencoded',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': `Basic ${Buffer.from(`${OAUTH2_CLIENT_ID}:${OAUTH2_CLIENT_SECRET}`).toString('base64')}`
         }
-    }, []);
-    useEffect(() => {
-        if(!searchParams?.get('code')){
-            const codeChallenge = sessionStorage.getItem('codeChallenge');
-            // const link = `http://auth-server:9000/oauth2/authorize?response_type=code&client_id=api-client&scope=openid&redirect_uri=http://127.0.0.1:3000/authorized&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-            const link = `http://auth-server:9000/oauth2/authorize?response_type=code&client_id=api-client&scope=openid&redirect_uri=http://127.0.0.1:3000/authorized&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-          
-            window.location.href = link;
-        }
-    }, []);
+        
+        const result = await axios.post(link, null, {headers: headers});
+        return result.data;
+    }
+
+    if (code === undefined) {
+        getAuthorizationCode(codeChallenge);
+    }
+
+    const { isSuccess, isError, data, error } = useQuery({
+        queryKey: ['getIdToken', code, codeVerifier], 
+        queryFn: () => requestIdToken(code, codeVerifier),
+        enabled: !!code && !!codeVerifier
+    })
+
+    if (isError) {
+        console.log(`Authorization failed: ${error}`);
+        navigate('/')
+    }
+
+    if (isSuccess) {
+        sessionStorage.setItem('accessToken', data.access_token)
+        sessionStorage.setItem('idToken', data.id_token)
+        sessionStorage.setItem('user', JSON.parse(Buffer.from(data.id_token.split('.')[1], 'base64').toString()).sub);
+        clearCodeChallenge();
+        clearCodeVerifier();
+        navigate('/')
+    }    
     return <p>Redirecting ...</p>
 }
 

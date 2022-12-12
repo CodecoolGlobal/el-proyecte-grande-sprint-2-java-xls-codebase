@@ -45,7 +45,7 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
   const { mutate, isSuccess } = useMutation({
     mutationFn: saveArticle => {
       setSaveTitle(article.title);
-      const token = sessionStorage.getItem('id_token');
+      const token = sessionStorage.getItem('accessToken');
       let headers = {
         'Authorization': `Bearer ${token}`
       }
@@ -102,7 +102,7 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
           </div>
           <h2>{article.title}</h2>
           <p className="intro">{article.description}</p>
-          <div className='image'><img src={article.urlToImage} width="auto"/></div>
+          <div className='image'><img alt="" src={article.urlToImage} width="auto"/></div>
           <div className='article-content'>
             <p className="content">{article.content}</p>
           </div>

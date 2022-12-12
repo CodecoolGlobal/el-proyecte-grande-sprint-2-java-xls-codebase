@@ -1,5 +1,3 @@
-// import SearchField from "./components/SearchField.jsx";
-import Search from "./components/search/Search.jsx";
 import Redirect from "./components/routes/Redirect.jsx";
 import Home from "./components/routes/Home.jsx";
 
@@ -20,7 +18,6 @@ function App() {
         <Route path="/redirect" element={<Redirect />} />
         <Route path="/authorized" element={<Redirect />} />
         <Route path="/" element={<Home />} />
-        {/* <Route path="/home" element={<Home />} /> */}
       </Routes>
     </BrowserRouter>
     <ReactQueryDevtools initialIsOpen={false} />
