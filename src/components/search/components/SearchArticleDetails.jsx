@@ -1,13 +1,12 @@
-import { useState } from "react";
-import { Alert, Toolbar, Tooltip } from "@mui/material"
-import { Snackbar } from "@mui/material";
-import { Box } from "@mui/system";
-import { Save } from "@mui/icons-material"
+import {useState} from "react";
+import {Alert, Snackbar, Toolbar, Tooltip} from "@mui/material"
+import {Box} from "@mui/system";
+import {Save} from "@mui/icons-material"
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useMutation } from "@tanstack/react-query"
+import {useMutation} from "@tanstack/react-query"
 import axios from "axios"
 
 
@@ -42,18 +41,23 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
     setOpen(false);
   };
 
-  const { mutate, isSuccess } = useMutation({
+  const {mutate, isSuccess, isError} = useMutation({
     mutationFn: saveArticle => {
       setSaveTitle(article.title);
       const token = sessionStorage.getItem('accessToken');
       let headers = {
         'Authorization': `Bearer ${token}`
       }
-      const baseURL ="http://127.0.0.1:8090"
-      const apiPath="/api/news/articles";
+      const baseURL = "http://127.0.0.1:8090"
+      const apiPath = "/api/news/articles";
       return axios.post(baseURL + apiPath, article, {headers: headers})
     },
-    onSuccess: () => { setOpen(true)}
+    onSuccess: () => {
+      setOpen(true)
+    },
+    onError: () => {
+      setOpen(true)
+    }
   })
 
   return (
@@ -110,9 +114,16 @@ const SearchArticleDetails = ({selectArticle, deselectArticle, articleIndex, num
             <p>Author: {article.author}</p>
           </div>
         </div>
-        <Snackbar open={open} onClose={handleClose} autoHideDuration={6000}>
-          {isSuccess && <Alert severity="success">"{saveTitle}" saved.</Alert>}
-        </Snackbar>
+        {isSuccess &&
+            <Snackbar open={open} onClose={handleClose} autoHideDuration={6000}>
+              <Alert severity="success">"{saveTitle}" saved.</Alert>
+            </Snackbar>
+        }
+        {isError &&
+            <Snackbar open={open} onClose={handleClose} autoHideDuration={6000}>
+              <Alert severity="error">"{saveTitle}" already exists.</Alert>
+            </Snackbar>
+        }
       </Box>
   </div>
   )
