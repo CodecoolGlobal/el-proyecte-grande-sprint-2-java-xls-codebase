@@ -14,6 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
 
 import logo from '../../logo.svg'
+import {Link} from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -137,6 +138,7 @@ const Desk = () => {
                     <div className="logo">
                         <object className="logo" data={logo}/>
                     </div>
+                    <Link to="/">Search Articles</Link>
                     {user ? <Box sx={{whiteSpace: 'nowrap'}}>Hallo {sessionStorage.getItem(user)}</Box> :
                         <LoginButton/>}
                 </Toolbar>
