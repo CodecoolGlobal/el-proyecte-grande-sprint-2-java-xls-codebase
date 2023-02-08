@@ -1,17 +1,20 @@
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Buffer } from "buffer";
-import { generateCodeChallenge, generateCodeVerifier } from '../../pkce/pkce';
+import {useNavigate, useSearchParams} from "react-router-dom";
+import {Buffer} from "buffer";
+import {generateCodeChallenge, generateCodeVerifier} from '../../pkce/pkce';
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { OAUTH2_AUTHORIZATION_ENDPOINT } from "../../config/constants.js";
-import { OAUTH2_CLIENT_ID } from "../../config/constants";
-import { OAUTH2_CODE_CHALLENGE_METHOD } from "../../config/constants";
-import { OAUTH2_RESPONSE_TYPE } from "../../config/constants";
-import { OAUTH2_TOKEN_ENDPOINT } from "../../config/constants";
-import { OAUTH2_REDIRECT_URI } from "../../config/constants";
-import { OAUTH2_GRANT_TYPE } from "../../config/constants";
-import { OAUTH2_SCOPE } from "../../config/constants";
-import { OAUTH2_CLIENT_SECRET } from "../../config/constants";
+import jwtDecode from "jwt-decode";
+import {useQuery} from "@tanstack/react-query";
+import {OAUTH2_AUTHORIZATION_ENDPOINT} from "../../config/constants.js";
+import {
+    OAUTH2_CLIENT_ID,
+    OAUTH2_CLIENT_SECRET,
+    OAUTH2_CODE_CHALLENGE_METHOD,
+    OAUTH2_GRANT_TYPE,
+    OAUTH2_REDIRECT_URI,
+    OAUTH2_RESPONSE_TYPE,
+    OAUTH2_SCOPE,
+    OAUTH2_TOKEN_ENDPOINT
+} from "../../config/constants";
 
 const Redirect = () => {
     const [searchParams] = useSearchParams();
@@ -19,7 +22,7 @@ const Redirect = () => {
     if (sessionStorage.getItem('codeVerifier') === null) {
         const codeVerifier = generateCodeVerifier();
         const codeChallenge = generateCodeChallenge(codeVerifier);
-    
+
         sessionStorage.setItem('codeVerifier', codeVerifier);
         sessionStorage.setItem('codeChallenge', codeChallenge);
     }
@@ -82,7 +85,7 @@ const Redirect = () => {
     if (isSuccess) {
         sessionStorage.setItem('accessToken', data.access_token)
         sessionStorage.setItem('idToken', data.id_token)
-        sessionStorage.setItem('user', JSON.parse(Buffer.from(data.id_token.split('.')[1], 'base64').toString()).sub);
+        sessionStorage.setItem('user', jwtDecode(data.access_token).sub);
         clearCodeChallenge();
         clearCodeVerifier();
         navigate('/')

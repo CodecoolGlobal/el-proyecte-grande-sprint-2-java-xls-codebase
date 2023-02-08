@@ -10,6 +10,7 @@ import {AppBar, Box, Toolbar} from '@mui/material';
 import LoginButton from './../login/LoginButton';
 
 import logo from '../../logo.svg'
+import {Link} from 'react-router-dom';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -93,18 +94,21 @@ const Search = () => {
     <div>
       <AppBar elevation={0} color="inherit" position="sticky" >
         <Toolbar disableGutters={true} >
-            <div className="logo"><object className="logo" data={logo}/></div>
-            <SearchField             
-              setSearchPhrase = {searchPhrase => {
-              dispatch({type:'searchPhrase', payload:''})
-              dispatch({type:'searchPhrase', payload:searchPhrase})
-              dispatch({type:'resetPageNumber'})
-              dispatch({type:'deselectArticle'})
-              dispatch({type: 'emptyArticles'})
+          <div className="logo">
+            <object className="logo" data={logo}/>
+          </div>
+          <SearchField
+              setSearchPhrase={searchPhrase => {
+                dispatch({type: 'searchPhrase', payload: ''})
+                dispatch({type: 'searchPhrase', payload: searchPhrase})
+                dispatch({type: 'resetPageNumber'})
+                dispatch({type: 'deselectArticle'})
+                dispatch({type: 'emptyArticles'})
               }
-            }></SearchField>
-            {user ? <Box sx={{ whiteSpace: 'nowrap'}}>Hallo {sessionStorage.getItem(user)}</Box> : <LoginButton />}
-      </Toolbar>
+              }></SearchField>
+          <Link to="/desk">Desk</Link>
+          {user ? <Box sx={{whiteSpace: 'nowrap'}}>Hallo {user}</Box> : <LoginButton/>}
+        </Toolbar>
       </AppBar>
       <div className='main-search'>
         <SearchResults 
